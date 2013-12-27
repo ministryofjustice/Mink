@@ -132,7 +132,7 @@ XPATH;
     public function testFindById()
     {
         $xpath = <<<XPATH
-//html//*[@id='some-item-2']
+//html/.//*[@id= 'some-item-2' ]
 XPATH;
 
         $this->session->getDriver()

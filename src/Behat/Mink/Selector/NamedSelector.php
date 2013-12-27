@@ -2,6 +2,8 @@
 
 namespace Behat\Mink\Selector;
 
+use Behat\Mink\Selector\Xpath\Escaper;
+
 /*
  * This file is part of the Behat\Mink.
  * (c) Konstantin Kudryashov <ever.zet@gmail.com>
@@ -17,6 +19,7 @@ namespace Behat\Mink\Selector;
  */
 class NamedSelector implements SelectorInterface
 {
+    private $xpathEscaper;
     private $selectors = array(
         'fieldset' => <<<XPATH
 .//fieldset[(./@id = %locator% or .//legend[contains(normalize-space(string(.)), %locator%)])]
@@ -57,7 +60,15 @@ XPATH
         ,'table' => <<<XPATH
 .//table[(./@id = %locator% or contains(.//caption, %locator%))]
 XPATH
+        ,'id' => <<<XPATH
+.//*[@id= %locator% ]
+XPATH
     );
+
+    public function __construct(Escaper $xpathEscaper = null)
+    {
+        $this->xpathEscaper = $xpathEscaper ?: new Escaper();
+    }
 
     /**
      * Registers new XPath selector with specified name.
@@ -104,7 +115,7 @@ XPATH
         $xpath = $this->selectors[$selector];
 
         if (null !== $locator) {
-            $xpath = strtr($xpath, array('%locator%' => $locator));
+            $xpath = strtr($xpath, array('%locator%' => $this->xpathEscaper->xpathLiteral($locator)));
         }
 
         return $xpath;
