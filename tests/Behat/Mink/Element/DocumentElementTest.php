@@ -3,21 +3,24 @@
 namespace Test\Behat\Mink\Element;
 
 use Behat\Mink\Element\DocumentElement;
-use Behat\Mink\Session;
+use Behat\Mink\Selector\SelectorsHandler;
 
 require_once 'ElementTest.php';
 
 /**
  * @group unittest
  */
-class DocumentElementTest extends ElementTest
+class DocumentElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Session.
-     *
-     * @var Session
+     * @var \PHPUnit_Framework_MockObject_MockObject
      */
-    private $session;
+    private $driver;
+
+    /**
+     * @var SelectorsHandler
+     */
+    private $selectorsHandler;
 
     /**
      * Page.
@@ -28,13 +31,14 @@ class DocumentElementTest extends ElementTest
 
     protected function setUp()
     {
-        $this->session  = $this->getSessionWithMockedDriver();
-        $this->document = new DocumentElement($this->session);
+        $this->driver = $this->getMock('Behat\Mink\Driver\DriverInterface');
+        $this->selectorsHandler = new SelectorsHandler();
+        $this->document = new DocumentElement($this->driver, $this->selectorsHandler);
     }
 
     public function testFindAll()
     {
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with('//html/h3[a]')
@@ -49,13 +53,13 @@ class DocumentElementTest extends ElementTest
             ->with($css = 'h3 > a')
             ->will($this->returnValue($xpath));
 
-        $this->session->getSelectorsHandler()->registerSelector('css', $selector);
+        $this->selectorsHandler->registerSelector('css', $selector);
         $this->assertEquals(2, count($this->document->findAll('css', $css)));
     }
 
     public function testFind()
     {
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(3))
             ->method('find')
             ->with('//html/h3[a]')
@@ -70,7 +74,7 @@ class DocumentElementTest extends ElementTest
             ->with($css = 'h3 > a')
             ->will($this->returnValue($xpath));
 
-        $this->session->getSelectorsHandler()->registerSelector('css', $selector);
+        $this->selectorsHandler->registerSelector('css', $selector);
         $this->assertEquals(1, $this->document->find('css', $css));
 
         $this->assertNull($this->document->find('xpath', $xpath));
@@ -82,7 +86,7 @@ class DocumentElementTest extends ElementTest
 //html/.//*[self::input | self::textarea | self::select][not(./@type = 'submit' or ./@type = 'image' or ./@type = 'hidden')][(((./@id = 'some field' or ./@name = 'some field') or ./@id = //label[contains(normalize-space(string(.)), 'some field')]/@for) or ./@placeholder = 'some field')] | .//label[contains(normalize-space(string(.)), 'some field')]//.//*[self::input | self::textarea | self::select][not(./@type = 'submit' or ./@type = 'image' or ./@type = 'hidden')]
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -98,7 +102,7 @@ XPATH;
 //html/.//a[./@href][(((./@id = 'some link' or contains(normalize-space(string(.)), 'some link')) or contains(./@title, 'some link') or contains(./@rel, 'some link')) or .//img[contains(./@alt, 'some link')])] | .//*[./@role = 'link'][((./@id = 'some link' or contains(./@value, 'some link')) or contains(./@title, 'some link') or contains(normalize-space(string(.)), 'some link'))]
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -114,7 +118,7 @@ XPATH;
 //html/.//input[./@type = 'submit' or ./@type = 'image' or ./@type = 'button' or ./@type = 'reset'][(((./@id = 'some button' or ./@name = 'some button') or contains(./@value, 'some button')) or contains(./@title, 'some button'))] | .//input[./@type = 'image'][contains(./@alt, 'some button')] | .//button[((((./@id = 'some button' or ./@name = 'some button') or contains(./@value, 'some button')) or contains(normalize-space(string(.)), 'some button')) or contains(./@title, 'some button'))] | .//input[./@type = 'image'][contains(./@alt, 'some button')] | .//*[./@role = 'button'][(((./@id = 'some button' or ./@name = 'some button') or contains(./@value, 'some button')) or contains(./@title, 'some button') or contains(normalize-space(string(.)), 'some button'))]
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -130,7 +134,7 @@ XPATH;
 //html/.//*[@id= 'some-item-2' ]
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -142,7 +146,7 @@ XPATH;
 
     public function testHasSelector()
     {
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with('//html/some xpath')
@@ -158,7 +162,7 @@ XPATH;
 //html/./descendant-or-self::*[contains(normalize-space(.), 'some content')]
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -174,7 +178,7 @@ XPATH;
 //html/.//a[./@href][(((./@id = 'some link' or contains(normalize-space(string(.)), 'some link')) or contains(./@title, 'some link') or contains(./@rel, 'some link')) or .//img[contains(./@alt, 'some link')])] | .//*[./@role = 'link'][((./@id = 'some link' or contains(./@value, 'some link')) or contains(./@title, 'some link') or contains(normalize-space(string(.)), 'some link'))]
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -190,7 +194,7 @@ XPATH;
 //html/.//input[./@type = 'submit' or ./@type = 'image' or ./@type = 'button' or ./@type = 'reset'][(((./@id = 'some button' or ./@name = 'some button') or contains(./@value, 'some button')) or contains(./@title, 'some button'))] | .//input[./@type = 'image'][contains(./@alt, 'some button')] | .//button[((((./@id = 'some button' or ./@name = 'some button') or contains(./@value, 'some button')) or contains(normalize-space(string(.)), 'some button')) or contains(./@title, 'some button'))] | .//input[./@type = 'image'][contains(./@alt, 'some button')] | .//*[./@role = 'button'][(((./@id = 'some button' or ./@name = 'some button') or contains(./@value, 'some button')) or contains(./@title, 'some button') or contains(normalize-space(string(.)), 'some button'))]
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -206,7 +210,7 @@ XPATH;
 //html/.//*[self::input | self::textarea | self::select][not(./@type = 'submit' or ./@type = 'image' or ./@type = 'hidden')][(((./@id = 'some field' or ./@name = 'some field') or ./@id = //label[contains(normalize-space(string(.)), 'some field')]/@for) or ./@placeholder = 'some field')] | .//label[contains(normalize-space(string(.)), 'some field')]//.//*[self::input | self::textarea | self::select][not(./@type = 'submit' or ./@type = 'image' or ./@type = 'hidden')]
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -229,7 +233,7 @@ XPATH;
             ->method('isChecked')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(3))
             ->method('find')
             ->with($xpath)
@@ -253,7 +257,7 @@ XPATH;
             ->method('isChecked')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(3))
             ->method('find')
             ->with($xpath)
@@ -270,7 +274,7 @@ XPATH;
 //html/.//select[(((./@id = 'some select field' or ./@name = 'some select field') or ./@id = //label[contains(normalize-space(string(.)), 'some select field')]/@for) or ./@placeholder = 'some select field')] | .//label[contains(normalize-space(string(.)), 'some select field')]//.//select
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -286,7 +290,7 @@ XPATH;
 //html/.//table[(./@id = 'some table' or contains(.//caption, 'some table'))]
 XPATH;
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->with($xpath)
@@ -308,7 +312,7 @@ XPATH;
         $node
             ->expects($this->once())
             ->method('click');
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->will($this->onConsecutiveCalls(array($node), array()));
@@ -330,7 +334,7 @@ XPATH;
         $node
             ->expects($this->once())
             ->method('press');
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->will($this->onConsecutiveCalls(array($node), array()));
@@ -353,7 +357,7 @@ XPATH;
             ->expects($this->once())
             ->method('setValue')
             ->with('some val');
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->will($this->onConsecutiveCalls(array($node), array()));
@@ -375,7 +379,7 @@ XPATH;
         $node
             ->expects($this->once())
             ->method('check');
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->will($this->onConsecutiveCalls(array($node), array()));
@@ -397,7 +401,7 @@ XPATH;
         $node
             ->expects($this->once())
             ->method('uncheck');
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->will($this->onConsecutiveCalls(array($node), array()));
@@ -420,7 +424,7 @@ XPATH;
             ->expects($this->once())
             ->method('selectOption')
             ->with('option2');
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->will($this->onConsecutiveCalls(array($node), array()));
@@ -443,7 +447,7 @@ XPATH;
             ->expects($this->once())
             ->method('attachFile')
             ->with('/path/to/file');
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('find')
             ->will($this->onConsecutiveCalls(array($node), array()));
@@ -455,7 +459,7 @@ XPATH;
 
     public function testGetContent()
     {
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('getContent')
             ->will($this->returnValue($ret = 'page content'));
@@ -465,7 +469,7 @@ XPATH;
 
     public function testGetText()
     {
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('getText')
             ->with('//html')

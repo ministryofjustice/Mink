@@ -3,7 +3,7 @@
 namespace Test\Behat\Mink\Element;
 
 use Behat\Mink\Element\NodeElement;
-use Behat\Mink\Session;
+use Behat\Mink\Selector\SelectorsHandler;
 
 require_once 'ElementTest.php';
 
@@ -13,20 +13,24 @@ require_once 'ElementTest.php';
 class NodeElementTest extends ElementTest
 {
     /**
-     * Session.
-     *
-     * @var Session
+     * @var \PHPUnit_Framework_MockObject_MockObject
      */
-    private $session;
+    private $driver;
+
+    /**
+     * @var SelectorsHandler
+     */
+    private $selectorsHandler;
 
     protected function setUp()
     {
-        $this->session = $this->getSessionWithMockedDriver();
+        $this->driver = $this->getMock('Behat\Mink\Driver\DriverInterface');
+        $this->selectorsHandler = new SelectorsHandler();
     }
 
     public function testGetXpath()
     {
-        $node = new NodeElement('some custom xpath', $this->session);
+        $node = new NodeElement('some custom xpath', $this->driver, $this->selectorsHandler);
 
         $this->assertEquals('some custom xpath', $node->getXpath());
         $this->assertNotEquals('not some custom xpath', $node->getXpath());
@@ -34,9 +38,9 @@ class NodeElementTest extends ElementTest
 
     public function testGetText()
     {
-        $node = new NodeElement('text_tag', $this->session);
+        $node = new NodeElement('text_tag', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('getText')
             ->with('text_tag')
@@ -47,9 +51,9 @@ class NodeElementTest extends ElementTest
 
     public function testHasAttribute()
     {
-        $node = new NodeElement('input_tag', $this->session);
+        $node = new NodeElement('input_tag', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('getAttribute')
             ->with('input_tag', 'href')
@@ -61,9 +65,9 @@ class NodeElementTest extends ElementTest
 
     public function testGetAttribute()
     {
-        $node = new NodeElement('input_tag', $this->session);
+        $node = new NodeElement('input_tag', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('getAttribute')
             ->with('input_tag', 'href')
@@ -74,9 +78,9 @@ class NodeElementTest extends ElementTest
 
     public function testHasClass()
     {
-        $node = new NodeElement('input_tag', $this->session);
+        $node = new NodeElement('input_tag', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(6))
             ->method('getAttribute')
             ->with('input_tag', 'class')
@@ -89,9 +93,9 @@ class NodeElementTest extends ElementTest
 
     public function testGetValue()
     {
-        $node = new NodeElement('input_tag', $this->session);
+        $node = new NodeElement('input_tag', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('getValue')
             ->with('input_tag')
@@ -102,9 +106,9 @@ class NodeElementTest extends ElementTest
 
     public function testSetValue()
     {
-        $node = new NodeElement('input_tag', $this->session);
+        $node = new NodeElement('input_tag', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('setValue')
             ->with('input_tag', 'new_val');
@@ -114,9 +118,9 @@ class NodeElementTest extends ElementTest
 
     public function testClick()
     {
-        $node = new NodeElement('link_or_button', $this->session);
+        $node = new NodeElement('link_or_button', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('click')
             ->with('link_or_button');
@@ -126,9 +130,9 @@ class NodeElementTest extends ElementTest
 
     public function testRightClick()
     {
-        $node = new NodeElement('elem', $this->session);
+        $node = new NodeElement('elem', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('rightClick')
             ->with('elem');
@@ -138,9 +142,9 @@ class NodeElementTest extends ElementTest
 
     public function testDoubleClick()
     {
-        $node = new NodeElement('elem', $this->session);
+        $node = new NodeElement('elem', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('doubleClick')
             ->with('elem');
@@ -150,9 +154,9 @@ class NodeElementTest extends ElementTest
 
     public function testCheck()
     {
-        $node = new NodeElement('checkbox_or_radio', $this->session);
+        $node = new NodeElement('checkbox_or_radio', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('check')
             ->with('checkbox_or_radio');
@@ -162,9 +166,9 @@ class NodeElementTest extends ElementTest
 
     public function testUncheck()
     {
-        $node = new NodeElement('checkbox_or_radio', $this->session);
+        $node = new NodeElement('checkbox_or_radio', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('uncheck')
             ->with('checkbox_or_radio');
@@ -174,9 +178,9 @@ class NodeElementTest extends ElementTest
 
     public function testSelectOption()
     {
-        $node = new NodeElement('select', $this->session);
+        $node = new NodeElement('select', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('selectOption')
             ->with('select', 'item1');
@@ -186,9 +190,9 @@ class NodeElementTest extends ElementTest
 
     public function testGetTagName()
     {
-        $node = new NodeElement('html//h3', $this->session);
+        $node = new NodeElement('html//h3', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('getTagName')
             ->with('html//h3')
@@ -199,9 +203,9 @@ class NodeElementTest extends ElementTest
 
     public function testIsVisible()
     {
-        $node = new NodeElement('some_xpath', $this->session);
+        $node = new NodeElement('some_xpath', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('isVisible')
             ->with('some_xpath')
@@ -213,9 +217,9 @@ class NodeElementTest extends ElementTest
 
     public function testIsChecked()
     {
-        $node = new NodeElement('some_xpath', $this->session);
+        $node = new NodeElement('some_xpath', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('isChecked')
             ->with('some_xpath')
@@ -227,9 +231,9 @@ class NodeElementTest extends ElementTest
 
     public function testIsSelected()
     {
-        $node = new NodeElement('some_xpath', $this->session);
+        $node = new NodeElement('some_xpath', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->exactly(2))
             ->method('isSelected')
             ->with('some_xpath')
@@ -241,9 +245,9 @@ class NodeElementTest extends ElementTest
 
     public function testFocus()
     {
-        $node = new NodeElement('some-element', $this->session);
+        $node = new NodeElement('some-element', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('focus')
             ->with('some-element');
@@ -253,9 +257,9 @@ class NodeElementTest extends ElementTest
 
     public function testBlur()
     {
-        $node = new NodeElement('some-element', $this->session);
+        $node = new NodeElement('some-element', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('blur')
             ->with('some-element');
@@ -265,9 +269,9 @@ class NodeElementTest extends ElementTest
 
     public function testMouseOver()
     {
-        $node = new NodeElement('some-element', $this->session);
+        $node = new NodeElement('some-element', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('mouseOver')
             ->with('some-element');
@@ -277,21 +281,21 @@ class NodeElementTest extends ElementTest
 
     public function dragTo()
     {
-        $node = new NodeElement('some_tag1', $this->session);
+        $node = new NodeElement('some_tag1', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('triggerEvent')
             ->with('some_tag1', 'some_tag3');
 
-        $node->dragTo(new NodeElement('some_tag2', $this->session));
+        $node->dragTo(new NodeElement('some_tag2', $this->driver, $this->selectorsHandler));
     }
 
     public function testSubmitForm()
     {
-        $node = new NodeElement('some_xpath', $this->session);
+        $node = new NodeElement('some_xpath', $this->driver, $this->selectorsHandler);
 
-        $this->session->getDriver()
+        $this->driver
             ->expects($this->once())
             ->method('submitForm')
             ->with('some_xpath');
