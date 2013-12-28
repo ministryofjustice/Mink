@@ -32,11 +32,6 @@ class DocumentElementTest extends ElementTest
         $this->document = new DocumentElement($this->session);
     }
 
-    public function testGetSession()
-    {
-        $this->assertEquals($this->session, $this->document->getSession());
-    }
-
     public function testFindAll()
     {
         $this->session->getDriver()
